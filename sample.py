@@ -11,8 +11,8 @@ while True:
     success, img= cap.read()
     img = detector.findHands(img=img)
     lmList=detector.findPosition(img)
-    if len(lmList)!=0:
-        print(lmList[4])
+    # if len(lmList)!=0:
+    #     # print(lmList[4])
     cTime=time.time()
     fps=1/(cTime-pTime)
     pTime=cTime
