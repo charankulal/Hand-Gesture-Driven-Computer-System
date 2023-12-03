@@ -40,6 +40,6 @@ class HandDetector():
                     cv2.circle(img,(cx,cy),10,(255,0,255),cv2.FILLED)
             xMin,xMax=min(xList),max(xList)
             yMin,yMax=min(yList),max(yList)
-            boundingBox=list(xMin,yMin,xMax,yMax)
+            boundingBox=xMin,yMin,xMax,yMax
         return self.lmList, boundingBox
 
