@@ -36,10 +36,13 @@ class HandDetector():
                 xList.append(cx)
                 yList.append(cy)
                 self.lmList.append([id,cx,cy])
-                if draw:
-                    cv2.circle(img,(cx,cy),10,(255,0,255),cv2.FILLED)
+                # if draw:
+                #     cv2.circle(img,(cx,cy),10,(255,0,255),cv2.FILLED)
             xMin,xMax=min(xList),max(xList)
             yMin,yMax=min(yList),max(yList)
             boundingBox=xMin,yMin,xMax,yMax
+            
+            if draw:
+                cv2.rectangle(img,(boundingBox[0]-20,boundingBox[1]-20),(boundingBox[2]+20,boundingBox[3]+20),(0,255,0),2)
         return self.lmList, boundingBox
 
