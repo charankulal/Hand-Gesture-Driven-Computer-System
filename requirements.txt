@@ -1,0 +1,4 @@
+1. Python
+2. OpenCV-Python --> For image processing
+3. Mediapipe --> For hand landmark
+4. Pycaw --> For Volume control
