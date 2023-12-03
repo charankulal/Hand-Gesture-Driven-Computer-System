@@ -45,4 +45,18 @@ class HandDetector():
             if draw:
                 cv2.rectangle(img,(boundingBox[0]-20,boundingBox[1]-20),(boundingBox[2]+20,boundingBox[3]+20),(0,255,0),2)
         return self.lmList, boundingBox
+    
+    def fingersUp(self):
+        fingers=[]
+        # For thumb
+        if self.lmList[self.tipIds[0]][1] < self.lmList[self.tipIds[0]-1][1]:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+        for id in range(1,5):
+            if self.lmList[self.tipIds[id]][2]<self.lmList[self.tipIds[id]-2][2]:
+                fingers.append(1)
+            else:
+                fingers.append(0)
+        return fingers
 
