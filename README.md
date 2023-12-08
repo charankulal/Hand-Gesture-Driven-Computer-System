@@ -38,8 +38,6 @@ while True:
     success, img= cap.read()
     img = detector.findHands(img=img)
     lmList=detector.findPosition(img)
-    # if len(lmList)!=0:
-    #     # print(lmList[4])
     cTime=time.time()
     fps=1/(cTime-pTime)
     pTime=cTime
@@ -103,18 +101,11 @@ while True:
             vol = smoothness*round(vol/smoothness)
 
             # Check fingers which are up
-            fingers=detector.fingersUp()
-          
+            fingers=detector.fingersUp()         
 
             # if pinky is down then set volume
             if not fingers[4]:
-                volume.SetMasterVolumeLevelScalar(vol/100, None)
-
-            # drawings
-
-            # Frame rate
-
-            
+                volume.SetMasterVolumeLevelScalar(vol/100, None)           
 
     cTime = time.time()
     fps = 1/(cTime-pTime)
