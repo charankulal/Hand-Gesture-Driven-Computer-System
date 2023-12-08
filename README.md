@@ -8,7 +8,6 @@
   - [Simple code](#simple-code)
   - [Code for volume control](#code-for-volume-control)
 
-
 ## Requirements
 
 ```text
@@ -21,7 +20,7 @@ pycaw==20230407
 
 ```
 
-## Simple code 
+## Simple code
 
 ```python
 
