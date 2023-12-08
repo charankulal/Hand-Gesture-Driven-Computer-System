@@ -1,5 +1,14 @@
 # HandTracking module
 
+## Table of Contents
+
+- [HandTracking module](#handtracking-module)
+  - [Table of Contents](#table-of-contents)
+  - [Requirements](#requirements)
+  - [Simple code](#simple-code)
+  - [Code for volume control](#code-for-volume-control)
+
+
 ## Requirements
 
 ```text
