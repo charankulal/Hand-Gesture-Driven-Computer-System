@@ -3,5 +3,10 @@ VolumeControl.ipynb
 HandTrackingMInimalCode.ipynb
 tempCodeRunnerFile.py
 __pycache__/*
+<<<<<<< HEAD
 testnotebook.ipynb
 autopy/*
+=======
+Test.ipynb
+.idea/*
+>>>>>>> 92096c882235cb57c36f244f935933ab75c8af71
