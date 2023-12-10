@@ -5,6 +5,7 @@
 - [HandTracking module](#handtracking-module)
   - [Table of Contents](#table-of-contents)
   - [Requirements](#requirements)
+  - [Execution of the code](#execution-of-the-code)
   - [Simple code](#simple-code)
   - [Code for volume control](#code-for-volume-control)
   - [Sample code for Mouse control](#sample-code-for-mouse-control)
@@ -69,7 +70,14 @@ tornado==6.3.3
 traitlets==5.13.0
 wcwidth==0.2.12
 
+```
 
+## Execution of the code
+
+Copy the requirements into `requirements.txt` and execute the following code
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Simple code
