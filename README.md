@@ -74,7 +74,7 @@ wcwidth==0.2.12
 
 ## Execution of the code
 
-Copy the requirements into `requirements.txt` and execute the following code
+Copy the requirements into `requirements.txt` and execute the following command in terminal
 
 ```bash
 pip install -r requirements.txt
