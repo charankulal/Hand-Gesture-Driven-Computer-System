@@ -47,11 +47,11 @@ while True:
             if fingers[4] == 1:
                 cv2.putText(img, "Finger 4 UP : Right", (50, 190),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
             if fingers[0] == 1:
                 cv2.putText(img, "Finger 0 UP : Right", (50, 220),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
  #  For closed finger in right
             if fingers[1] == 0:
                 cv2.putText(img, "Finger 1 DOWN : Right", (50, 250),
@@ -67,7 +67,7 @@ while True:
             if fingers[4] == 0:
                 cv2.putText(img, "Finger 4 DOWN : Right", (50, 340),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
             if fingers[0] == 0:
                 cv2.putText(img, "Finger 0 DOWN : Right", (50, 370),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
@@ -93,11 +93,11 @@ while True:
             if fingers[4] == 1:
                 cv2.putText(img, "Finger 4 UP : Left", (50, 190),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
             if fingers[0] == 1:
                 cv2.putText(img, "Finger 0 UP : Left", (50, 220),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
  #  For closed finger in Left
             if fingers[1] == 0:
                 cv2.putText(img, "Finger 1 DOWN : Left", (50, 250),
@@ -113,7 +113,7 @@ while True:
             if fingers[4] == 0:
                 cv2.putText(img, "Finger 4 DOWN : Left", (50, 340),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-                
+
             if fingers[0] == 0:
                 cv2.putText(img, "Finger 0 DOWN : Left", (50, 370),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
