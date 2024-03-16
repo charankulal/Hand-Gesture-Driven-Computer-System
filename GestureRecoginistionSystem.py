@@ -53,7 +53,7 @@ while True:
     # lmList, bbox = detector.findPosition(img)
     lmList, boundingBox = detector.findPosition(img, handNo=0, draw=True)
 
-    if which_hand=="Right":
+    if which_hand=="Right" :
         if len(lmList) != 0:
             [x1, y1] = lmList[8][1:]
             [x2, y2] = lmList[12][1:]
@@ -62,7 +62,7 @@ while True:
                         (wCam-frameR, hCam-frameR), (255, 0, 255), 2)
 
             # For hovering or pointer movement
-            if fingers[1] == 1 and fingers[2] == 0 and fingers[0]==0:
+            if fingers[1] == 1 and fingers[2] == 1 and fingers[0]==0:
 
                 x3 = np.interp(x1, (frameR, wCam-frameR), (0, wScreen))
                 y3 = np.interp(y1, (frameR, hCam-frameR), (0, hScreen))
@@ -75,11 +75,9 @@ while True:
 
             # Left click functionality
 
-            if fingers[1] == 1 and fingers[2] == 1:
-                length, img, lineInfo = detector.findDistance(8, 12, img)
-                # print(length)
-                if length < 40:
-                    pyautogui.click()
+            if fingers[1] == 1 and fingers[2] == 1 and fingers[3]==1 and fingers[4]==0 :
+                pyautogui.click()
+                
 
             # Right click functionality
             if fingers[1] == 1 and fingers[2] == 0:
