@@ -25,20 +25,28 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
         # Draw face landmarks
-        mp_drawing.draw_landmarks(
-            image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
+        if results.face_landmarks:
+            print("Face detected")
+            mp_drawing.draw_landmarks(
+                image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
 
-        # right hand
-        mp_drawing.draw_landmarks(
+        # right hand and feed is flipped
+        if results.right_hand_landmarks:
+            print("Left hand detected")
+            mp_drawing.draw_landmarks(
             image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
         # left hand
-        mp_drawing.draw_landmarks(
+        if results.left_hand_landmarks:
+            print("Right hand detected")
+            mp_drawing.draw_landmarks(
             image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
         # pose detections
-        mp_drawing.draw_landmarks(
-            image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+        if results.pose_landmarks:
+            print("Pose landmarks detected")
+            mp_drawing.draw_landmarks(
+                image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
 
         cv2.imshow('Holistic model detections', image)
 
