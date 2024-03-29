@@ -30,13 +30,13 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
             mp_drawing.draw_landmarks(
                 image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
 
-        # right hand and feed is flipped
+        # left hand and feed is flipped
         if results.right_hand_landmarks:
             print("Left hand detected")
             mp_drawing.draw_landmarks(
             image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
-        # left hand
+        # right hand as the feed is flipped
         if results.left_hand_landmarks:
             print("Right hand detected")
             mp_drawing.draw_landmarks(
