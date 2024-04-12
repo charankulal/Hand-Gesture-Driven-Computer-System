@@ -47,6 +47,8 @@ maximumVolume = volumeRange[1]
 area = 0
 
 # To check whether the powerpoint is presenting or not
+
+
 def is_powerpoint_in_focus():
     windows = gw.getAllWindows()
     for window in windows:
@@ -54,6 +56,7 @@ def is_powerpoint_in_focus():
             if window.isActive:
                 return True
     return False
+
 
 def is_powerpoint_in_presentation_mode():
     # Get a list of all open windows
@@ -66,6 +69,7 @@ def is_powerpoint_in_presentation_mode():
     return False  # If no PowerPoint presentation window is found
 
 # Infinite loop to accept input live from the cam feed using opencv
+
 
 while True:
     success, img = cap.read()
@@ -133,21 +137,18 @@ while True:
             cv2.rectangle(img, (frameR, frameR),
                           (wCam-frameR, hCam-frameR), (255, 0, 255), 2)
 
-            
-            
             if is_powerpoint_in_presentation_mode():
                 if fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[0] == 1:
                     pyautogui.press('backspace')
                     time.sleep(1)
-                    
+
                 elif fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 1:
                     pyautogui.press('enter')
                     time.sleep(1)
-                    
-                
+
             else:
-                
-    # For hovering or pointer movement
+
+                # For hovering or pointer movement
                 if fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 1:
 
                     x3 = np.interp(x1, (frameR, wCam-frameR), (0, wScreen))
@@ -176,7 +177,8 @@ while True:
                     if 100 < area < 900:
 
                         # Find the distance btwn index and thumb
-                        length, img, lineInfo = detector.findDistance(4, 8, img=img)
+                        length, img, lineInfo = detector.findDistance(
+                            4, 8, img=img)
 
                         # Converting length to volume
                         brightness = np.interp(length, [10, 150], [0, 100])
