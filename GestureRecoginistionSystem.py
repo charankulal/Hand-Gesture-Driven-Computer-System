@@ -98,37 +98,45 @@ while True:
                 pyautogui.moveTo(clocX, clocY)
                 plocX, plocY = clocX, clocY
 
+            if fingers[0]==1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+                pyautogui.hotkey('win','a')
+                time.sleep(2)
+                
+                
             # Left click functionality
 
             if fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
                 pyautogui.click()
+                time.sleep(1)
 
             # Right click functionality
             if fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 0:
                 if fingers[4] == 1:
                     pyautogui.rightClick()
+                    time.sleep(1)
 
             area = (boundingBox[2]-boundingBox[0]) * \
                 (boundingBox[3]-boundingBox[1])//100
             # print(area)
-            if 100 < area < 1000:
+            if not fingers[2]:
+                if 100 < area < 1000:
 
-                # Find the distance btwn index and thumb
-                length, img, lineInfo = detector.findDistance(4, 8, img=img)
+                    # Find the distance btwn index and thumb
+                    length, img, lineInfo = detector.findDistance(4, 8, img=img)
 
-                # Converting length to volume
-                vol = np.interp(length, [10, 150], [0, 100])
+                    # Converting length to volume
+                    vol = np.interp(length, [10, 150], [0, 100])
 
-                # Reduce resolution to make smoother.
-                smoothness = 5
-                vol = smoothness*round(vol/smoothness)
+                    # Reduce resolution to make smoother.
+                    smoothness = 5
+                    vol = smoothness*round(vol/smoothness)
 
-                # Check fingers which are up
-                fingers = detector.fingersUp()
+                    # Check fingers which are up
+                    fingers = detector.fingersUp()
 
-                # if pinky is down then set volume
-                if not fingers[4]:
-                    volume.SetMasterVolumeLevelScalar(vol/100, None)
+                    # if pinky is down then set volume
+                    if not fingers[4]:
+                        volume.SetMasterVolumeLevelScalar(vol/100, None)
     if which_hand == "Left":
         if len(lmList) != 0:
             [x1, y1] = lmList[8][1:]
