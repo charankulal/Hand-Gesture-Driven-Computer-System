@@ -11,3 +11,5 @@ Test.ipynb
 >>>>>>> 92096c882235cb57c36f244f935933ab75c8af71
 /DP.jpg
 sample1.jpg
+/Face Recognition/
+vgg_face_weights.h5
