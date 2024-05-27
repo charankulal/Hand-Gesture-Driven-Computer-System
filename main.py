@@ -1,45 +1,46 @@
-# Mouse actions
 import sys
-import cv2
+import threading
 import time
-import numpy as np
-import HandTrackingModule as htm
-import math
+
 from comtypes import CLSCTX_ALL
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+import HandTrackingModule as htm
 import pyautogui
-import screen_brightness_control as sbc
+from videoCap import VideoGet, VideoShow, CountsPerSec, putIterationsPerSec
+import cv2
+from face_encoding import ref_img_face_encodings
+import asyncio
+from face_auth import check_auth
+from config import get_auth, set_auth_frame, get_global_status
 import pygetwindow as gw
-import face_recognition
-from face_encoding import  ref_img_face_encodings, known_face_names
+import screen_brightness_control as sbc
+import numpy as np
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+wCam = 640
+hCam = 480
 
 
-wCam, hCam = 640, 480
-cap = cv2.VideoCapture(0)
-cap.set(3, wCam)
-cap.set(4, hCam)
-pTime = 0
+
+# declarations related to mouse control functionalities
+wScreen, hScreen = pyautogui.size()
+pyautogui.FAILSAFE = False
 frameR = 100
 smoothening = 3.5
 plocX, plocY = 0, 0
 clocX, clocY = 0, 0
 
+video_getter = VideoGet().start()
+video_shower = VideoShow(video_getter.frame).start()
+cps = CountsPerSec().start()
+face_auth_monitor = threading.Thread(target=check_auth)
+face_auth_monitor.start()
+# def main():
+#     global video_getter,video_shower,cps
+iterations = 0
 
-# maxHands parameter specifies that the detector should track a maximum of 1 hand in the video feed.
 
-detector = htm.HandDetector(maxHands=1)
 
-# `wScreen, hScreen = pyautogui.size()` retrieves the screen resolution width and height using the `pyautogui.size()` function
-# and assigns them to the variables `wScreen` and `hScreen` respectively. This information is useful for mapping
-# the hand movements on the camera feed to the corresponding positions on the screen.
-
-# declarations related to mouse control functionalities
-wScreen, hScreen = pyautogui.size()
-pyautogui.FAILSAFE = False
-
-# This block of code is related to controlling the system's audio volume using the `pycaw` library.
-
-# declarations related to volume control functionality
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(
     IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -49,7 +50,7 @@ minimumVolume = volumeRange[0]
 maximumVolume = volumeRange[1]
 area = 0
 
-# To check whether the powerpoint is presenting or not
+
 
 
 def is_powerpoint_in_focus():
@@ -70,71 +71,83 @@ def is_powerpoint_in_presentation_mode():
         if "PowerPoint Slide Show" in window.title:
             return True
     return False  # If no PowerPoint presentation window is found
-name = "Unknown"
-# Infinite loop to accept input live from the cam feed using opencv
 
+
+
+if len(ref_img_face_encodings) != 1:
+    print("Multiple faces detected!. Single authority required.")
+    video_getter.stop()
+    video_shower.stop()
+    face_auth_monitor.join(0.1)
+    sys.exit()
+
+
+detector = htm.HandDetector(maxHands=1)
 
 while True:
-    success, img = cap.read()
-    img = cv2.flip(img, 1)
-    face_locations = face_recognition.face_locations(img)
-    face_encodings = face_recognition.face_encodings(img, face_locations)
-    img, which_hand = detector.findHands(img)
-    # lmList, bbox = detector.findPosition(img)
-    lmList, boundingBox = detector.findPosition(img, handNo=0, draw=True)
-    
-    for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-        matches = face_recognition.compare_faces(ref_img_face_encodings, face_encoding)
-        name = "Unknown"
+    iterations += 1
+    # print(iterations)
+    if not get_global_status():
+        continue
 
-        if True in matches:
-            first_match_index = matches.index(True)
-            name = known_face_names[first_match_index]
-            
-        
-        cv2.rectangle(img,(left, bottom-35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        cv2.putText(img, name,(left+6,bottom-6),cv2.FONT_HERSHEY_SIMPLEX,1.0,(255,255,255),1)
+    if video_getter.stopped or video_shower.stopped:
+        video_shower.stop()
+        video_getter.stop()
+        print("Video not rendering")
+        break
 
-    if name!="Unknown":
+    # Receive a frame
+    frame = cv2.flip(video_getter.frame, 1)
+
+    if iterations % 1000 == 0:
+        set_auth_frame(frame)
+
+    if not get_auth():
+        cv2.putText(frame, "Not Authorized",(500, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255))
+    else:
+        img, which_hand = detector.findHands(frame)
+        lmList, boundingBox = detector.findPosition(img, handNo=0, draw=True)
         if which_hand == "Right":
             if len(lmList) != 0:
                 [x1, y1] = lmList[8][1:]
                 [x2, y2] = lmList[12][1:]
                 fingers = detector.fingersUp()
                 cv2.rectangle(img, (frameR, frameR),
-                            (wCam-frameR, hCam-frameR), (255, 0, 255), 2)
+                              (wCam - frameR, hCam - frameR), (255, 0, 255), 2)
 
                 # For hovering or pointer movement
                 if fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 0:
+                    x3 = np.interp(x1, (frameR, wCam - frameR), (0, wScreen))
+                    y3 = np.interp(y1, (frameR, hCam - frameR), (0, hScreen))
 
-                    x3 = np.interp(x1, (frameR, wCam-frameR), (0, wScreen))
-                    y3 = np.interp(y1, (frameR, hCam-frameR), (0, hScreen))
-
-                    clocX = plocX+(x3-plocX)/smoothening
-                    clocY = plocY+(y3-plocY)/smoothening
+                    clocX = plocX + (x3 - plocX) / smoothening
+                    clocY = plocY + (y3 - plocY) / smoothening
 
                     pyautogui.moveTo(clocX, clocY)
                     plocX, plocY = clocX, clocY
 
-                if fingers[0]==1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
-                    pyautogui.hotkey('win','a')
-                    # time.sleep(2)
-                    
-                    
+                if fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+                    pyautogui.hotkey('win', 'a')
+                    time.sleep(2)
+
                 # Left click functionality
 
                 if fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
                     pyautogui.click()
-                    # time.sleep(1)
+                    cv2.putText(img, "Left Click", (170, 70),
+                                cv2.FONT_HERSHEY_PLAIN, 2, (125, 125, 125), 3)
+                    time.sleep(1)
 
                 # Right click functionality
                 if fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 0:
                     if fingers[4] == 1:
+                        cv2.putText(img, "Right Click", (170, 70),
+                                    cv2.FONT_HERSHEY_PLAIN, 2, (125, 125, 125), 3)
                         pyautogui.rightClick()
-                        # time.sleep(1)
+                        time.sleep(1)
 
-                area = (boundingBox[2]-boundingBox[0]) * \
-                    (boundingBox[3]-boundingBox[1])//100
+                area = (boundingBox[2] - boundingBox[0]) * \
+                       (boundingBox[3] - boundingBox[1]) // 100
                 # print(area)
                 if not fingers[2]:
                     if 100 < area < 1000:
@@ -147,41 +160,40 @@ while True:
 
                         # Reduce resolution to make smoother.
                         smoothness = 5
-                        vol = smoothness*round(vol/smoothness)
+                        vol = smoothness * round(vol / smoothness)
 
                         # Check fingers which are up
                         fingers = detector.fingersUp()
 
                         # if pinky is down then set volume
                         if not fingers[4]:
-                            volume.SetMasterVolumeLevelScalar(vol/100, None)
+                            volume.SetMasterVolumeLevelScalar(vol / 100, None)
         if which_hand == "Left":
             if len(lmList) != 0:
                 [x1, y1] = lmList[8][1:]
                 [x2, y2] = lmList[12][1:]
                 fingers = detector.fingersUp()
                 cv2.rectangle(img, (frameR, frameR),
-                            (wCam-frameR, hCam-frameR), (255, 0, 255), 2)
+                              (wCam - frameR, hCam - frameR), (255, 0, 255), 2)
 
                 if is_powerpoint_in_presentation_mode():
                     if fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[0] == 1:
                         pyautogui.press('backspace')
-                        # time.sleep(1)
+                        time.sleep(1)
 
                     elif fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 1:
                         pyautogui.press('enter')
-                        # time.sleep(1)
+                        time.sleep(1)
 
                 else:
 
                     # For hovering or pointer movement
                     if fingers[1] == 1 and fingers[2] == 1 and fingers[0] == 1:
+                        x3 = np.interp(x1, (frameR, wCam - frameR), (0, wScreen))
+                        y3 = np.interp(y1, (frameR, hCam - frameR), (0, hScreen))
 
-                        x3 = np.interp(x1, (frameR, wCam-frameR), (0, wScreen))
-                        y3 = np.interp(y1, (frameR, hCam-frameR), (0, hScreen))
-
-                        clocX = plocX+(x3-plocX)/smoothening
-                        clocY = plocY+(y3-plocY)/smoothening
+                        clocX = plocX + (x3 - plocX) / smoothening
+                        clocY = plocY + (y3 - plocY) / smoothening
 
                         pyautogui.moveTo(clocX, clocY)
                         plocX, plocY = clocX, clocY
@@ -196,8 +208,8 @@ while True:
                         if fingers[4] == 1:
                             pyautogui.rightClick()
 
-                    area = (boundingBox[2]-boundingBox[0]) * \
-                        (boundingBox[3]-boundingBox[1])//100
+                    area = (boundingBox[2] - boundingBox[0]) * \
+                           (boundingBox[3] - boundingBox[1]) // 100
                     # print(area)
                     if not fingers[2]:
                         if 100 < area < 900:
@@ -211,18 +223,14 @@ while True:
 
                             # Reduce resolution to make smoother.
                             smoothness = 5
-                            brightness = smoothness*round(brightness/smoothness)
+                            brightness = smoothness * round(brightness / smoothness)
 
                             # if pinky is down then set volume
                             if not fingers[4]:
                                 sbc.set_brightness(brightness)
-    else:
-        sys.exit()
-    cTime = time.time()
-    fps = 1/(cTime-pTime)
-    pTime = cTime
 
-    cv2.putText(img, f'FPS:{int(fps)}', (48, 70),
-                cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 3)
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    frame = putIterationsPerSec(frame, cps.countsPerSec())
+    video_shower.frame = frame
+    cps.increment()
+
+
